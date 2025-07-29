@@ -1,8 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import Header from './components/Header'
 import Produtos from './containers/Produtos'
-
 import { GlobalStyle } from './styles'
+
+import { useAppDispatch, useAppSelector } from './store/hooks'
+import { fetchProdutos } from './store/slices/produtosSlice'
+import { adicionarAoCarrinho } from './store/slices/carrinhoSlice'
+import { toggleFavorito } from './store/slices/favoritosSlice'
 
 export type Produto = {
   id: number
@@ -12,32 +16,14 @@ export type Produto = {
 }
 
 function App() {
-  const [produtos, setProdutos] = useState<Produto[]>([])
-  const [carrinho, setCarrinho] = useState<Produto[]>([])
-  const [favoritos, setFavoritos] = useState<Produto[]>([])
+  const dispatch = useAppDispatch()
+  const produtos = useAppSelector((state) => state.produtos.itens)
+  const favoritos = useAppSelector((state) => state.favoritos)
+  const carrinho = useAppSelector((state) => state.carrinho)
 
   useEffect(() => {
-    fetch('https://fake-api-tau.vercel.app/api/ebac_sports')
-      .then((res) => res.json())
-      .then((res) => setProdutos(res))
-  }, [])
-
-  function adicionarAoCarrinho(produto: Produto) {
-    if (carrinho.find((p) => p.id === produto.id)) {
-      alert('Item já adicionado')
-    } else {
-      setCarrinho([...carrinho, produto])
-    }
-  }
-
-  function favoritar(produto: Produto) {
-    if (favoritos.find((p) => p.id === produto.id)) {
-      const favoritosSemProduto = favoritos.filter((p) => p.id !== produto.id)
-      setFavoritos(favoritosSemProduto)
-    } else {
-      setFavoritos([...favoritos, produto])
-    }
-  }
+    dispatch(fetchProdutos())
+  }, [dispatch])
 
   return (
     <>
@@ -47,8 +33,8 @@ function App() {
         <Produtos
           produtos={produtos}
           favoritos={favoritos}
-          favoritar={favoritar}
-          adicionarAoCarrinho={adicionarAoCarrinho}
+          favoritar={(p) => dispatch(toggleFavorito(p))}
+          adicionarAoCarrinho={(p) => dispatch(adicionarAoCarrinho(p))}
         />
       </div>
     </>
