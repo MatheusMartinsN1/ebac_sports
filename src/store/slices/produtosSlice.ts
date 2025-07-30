@@ -15,11 +15,9 @@ const initialState: ProdutosState = {
 export const fetchProdutos = createAsyncThunk(
   'produtos/fetchProdutos',
   async () => {
-    const resposta = await fetch(
-      'https://fake-api-tau.vercel.app/api/ebac_sports'
-    )
+    const resposta = await fetch('/produtos.json')
     const dados = await resposta.json()
-    return dados as Produto[]
+    return dados.produtos as Produto[]
   }
 )
 
